@@ -1,0 +1,83 @@
+(define (square x) (* x x))
+(square 3)
+
+(define (triangles max-perimenter)
+  (define (next-triangle a b c) 1)
+  (cond ((> (sum a b c) max-perimenter))))
+
+;; three recursion
+;; 1.2.2
+(define (first-denomination kind-of-coins)
+  (cond ((= kind-of-coins 1) 1)
+	((= kind-of-coins 2) 5)
+	((= kind-of-coins 3) 10)
+	((= kind-of-coins 4) 25)
+	((= kind-of-coins 5) 50)))
+
+(define (cc amount kind-of-coins)
+  (cond ((= amount 0) 1)
+	((or (< amount 0) (= kind-of-coins 0)) 0)
+	(else (+ (cc amount
+		     (- kind-of-coins 1))
+		 (cc (- amount (first-denomination kind-of-coins))
+		     kind-of-coins)))))
+
+(define (count-change amount)
+  (cc amount 5))
+
+;; ex 1.11
+
+
+;; three-recursive
+(define (ex1.11 x)
+  (cond ((< x 3) x)
+	(else (+ (ex1.11 (- x 1))
+		 (* 2 (ex1.11 (- x 2)))
+		 (* 3 (ex1.11 (- x 3)))))))
+
+;; iterative
+(define (ex1.11b x)
+  (define (next-term n-1 n-2 n-3)
+    (+ n-1 (* 2 n-2) (* 3 n-3)))
+  (define (iter n n-1 n-2 n-3)
+    (cond ((= n x) n-1)
+	  (else (iter (+ 1 n) (next-term n-1 n-2 n-3) n-1 n-2))))
+  (cond ((< x 3) x)
+	(else (iter 2 2 1 0))))
+
+;; Finds elements in Pascals triangle
+(define (ex1.12 row col)
+  (cond ((or (= col 1) (= row col)) 1)
+	((or (<= col 0) (> col row)) 0)
+	(else (+ (ex1.12 (- row 1) col) (ex1.12 (- row 1) (- col 1))))))
+
+(define (c x)
+  (define (c-iter x counter)
+    (cond ((< x 0.1) counter)
+	  (else (c-iter (/ x 3) (+ 1 counter)))))
+  (c-iter x 1))
+
+(define (exp x y)
+  (cond ((= y 0) 1 )
+	(else (* x (exp (- y 1))))))
+
+(define (exp-lin x y)
+  (define (exp-lin-iter y acc)
+    (cond ((= 0 y) acc)
+	  (else (exp-lin-iter (- y 1) (* acc x)))))
+  (exp-lin-iter y 1))
+
+
+(define (smallest-divider n)
+  (find-divider n 2))
+
+(define (find-divider n test-divider)
+  (cond ((> (square test-divider) n) n)
+	((divides? n test-divider) test-divider)
+	(else (find-divider n (1+ test-divider)))))
+
+(define (-1+ x) (- x 1))
+(define (1+ x) (+ x 1))
+(define square (lambda (x) (* x x)))
+(define divides? (lambda (x y) (= 0 (remainder x y))))
+(define is-prime? (lambda (x) (= (smallest-divider x) x)))

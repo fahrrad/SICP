@@ -1,0 +1,62 @@
+#lang planet neil/sicp
+
+(define nil null)
+
+(cons 1 nil)
+(define one-to-four (list 1 2 3 4))
+(car one-to-four)
+
+(null? nil)
+
+
+(define (list-ref xs n)
+  (if (= n 0) (car xs)
+      (list-ref (cdr xs) (- n 1))))
+
+
+(define (length xs)
+  (define (length-helper xs c)
+    (if (null? xs) c
+	(length- (cdr xs) (+ 1 c))))
+  (length-helper xs 0))
+
+
+(define (cons x y)
+  (define (dispatch m)
+    (cond ((= m 0) x)
+	  ((= m 1) y)
+	  (else (error "Argument not 0 or 1: CONS" m))))
+  dispatch)
+
+(define (car z) (z 0))
+(define (cdr z) (z 1))
+
+(define 1- (lambda (x) (- x 1)))
+(define 1+ (lambda (x) (+ x 1)))
+(define square (lambda (x) (* x x)))
+
+(define pow (lambda (x y)
+	      (cond ((<= y 0) 1)
+		    ((even? y) (square (pow x (/ y 2))))
+		    (else (* x (pow x (1- y )))))))
+
+(define expmod (lambda (x y m) (remainder (pow x y) m)))
+
+(define (divides? a b )
+  (= 0 (remainder a b)))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+	((divides? n test-divisor) test-divisor)
+	(else (find-divisor n (1+ test-divisor)))))
+
+(define smallest-divisor (lambda (n) (find-divisor n 2)))
+
+(define (fermat-test n)
+  (let ((a (1+ (random (1- n)))))
+    (= a (expmod a n n))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) false)
+	(else (or (fermat-test n)
+		  (fast-prime? n (1- times))))))
