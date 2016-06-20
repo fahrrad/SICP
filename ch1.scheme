@@ -183,6 +183,13 @@
     (+ a 4))
   (mysum pi-term pi-next a b))
 
+;; Greatest common divisor
+(define (gcd a b)
+  (if (= 0 (remainder a b))
+      b
+      (gcd b (remainder a b))))
+
+
 ;; Integral for a function f between a and b is aprox. the product of dx
 ;; and the sum of f(a + dx/2 + dx * n) unit a + dx/2 + dx * n > b
 ;; it is dividing the surface in small pilars (dx wide, and f(x + dx/2) wide
@@ -193,3 +200,140 @@
     (+ x dx))
   (* dx (sum f (+ a (/ dx 2.0)) add-dx b )))
 
+
+;; Ex 1.30 rewrite sum to be iterative in stead of linear recursive
+(define (pi-sum a b)
+  (define (pi-term a)
+    (/ 1.0 (* a (+ a 2))))
+  (define (pi-next a)
+    (+ a 4))
+  (mysum pi-term pi-next a b))
+
+;; Integral for a function f between a and b is aprox. the product of dx
+;; and the sum of f(a + dx/2 + dx * n) unit a + dx/2 + dx * n > b
+;; it is dividing the surface in small pilars (dx wide, and f(x + dx/2) wide
+;; The extra +dx/2 makes it more accurate (takes the middle point of the interval;; i.s.o. the max
+;; so
+(define (integral f a b dx)
+  (define (add-dx x)
+    (+ x dx))
+  (* dx (sum f (+ a (/ dx 2.0)) add-dx b )))
+
+
+;; Ex 1.30 rewrite sum to be iterative in stead of linear recursive
+(define (pi-sum a b)
+  (define (pi-term a)
+    (/ 1.0 (* a (+ a 2))))
+  (define (pi-next a)
+    (+ a 4))
+  (mysum pi-term pi-next a b))
+
+;; Integral for a function f between a and b is aprox. the product of dx
+;; and the sum of f(a + dx/2 + dx * n) unit a + dx/2 + dx * n > b
+;; it is dividing the surface in small pilars (dx wide, and f(x + dx/2) wide
+;; The extra +dx/2 makes it more accurate (takes the middle point of the interval;; i.s.o. the max
+;; so
+(define (integral f a b dx)
+  (define (add-dx x)
+    (+ x dx))
+  (* dx (sum f (+ a (/ dx 2.0)) add-dx b )))
+
+
+;; Ex 1.30 rewrite sum to be iterative in stead of linear recursive
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)) )))
+  (iter a 0))
+
+;; Ex 1.31 write generic product
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a) (product term (next a) next b))))
+
+;; Approx pi with pi/8 = 4*4*6*6*8*8... / 3*3*5*5*7*7...
+(define (approx-pi p)
+  (define (next n)
+    (+ n 2))
+  (define (term x)
+    (/ (* 4 x x)
+       (*
+	(- (* 2 x) 1)
+	(- (* 2 x) 1))))
+  (product term 2 next p))
+
+;; 1.3.2 : Constructing Procedures with Lambda
+;; (lambda (<formal-parameters>) <body>)
+
+(define (plus5 x ) (+ x 5))
+;; is the same as
+(define plus5 (lambda (x) (+ 5 x)))
+
+;; This is the same, but not associated to any name in this environment
+(lambda (x) (+ 5 x))
+
+;; let can create very local bindings
+(let ((a 1)
+      (b (+ 1 1)))
+  (* a b))
+
+;; let is just syntax sugar for lambda
+((lambda (a b)
+   (* a b))
+   1
+   (+ 1 1))
+
+(let ((x 1))
+  (let ((y (+ 1 x)))
+    (+ x y)))
+
+(define (f g)
+  (g 2))
+
+(f square)
+;; (f f)
+
+
+;; Ex 1.32
+;;
+;; Accumulate
+;; A more genereci form of sum and product
+;;
+(define  (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a) (accumulate combiner
+				     null-value term (next a)
+				     next b))))
+
+;; accumulate recursive
+;;
+(define (accumulate-rec combiner null-value term a next b)
+  (define (f n acc)
+    (if (> n b)
+	acc
+	(f (inc n)
+	   (combiner acc (term n)))))
+  (f a null-value))
+
+(define (filtered-accumulate predicate combiner
+			     null-value term a next b)
+  (define (fn n acc)
+    (if (> n b)
+	acc
+	(if (predicate n)
+	    (fn (next n) (combiner acc (term n)))
+	    (fn (next n) acc))))
+  (fn a null-value))
+
+;; ex 1.33 1
+(define (sum-of-square-prime a b)
+  (filtered-accumulate prime? + 0 square a inc b))
+
+;; ex 1.33 2
+(define (prod-pos-rel-primes n)
+  (define (rel-prime d)
+    (= 1 (gcd n d)))
+  (filtered-accumulate rel-prime * 1 identity 1 inc n))
