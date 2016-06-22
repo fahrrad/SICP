@@ -478,3 +478,50 @@
   (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))
 
 
+;; ex 1.41
+(define (double f)
+  (lambda (x) (f (f x))))
+
+(((double (double double)) inc) 5) ;; 21
+
+
+
+;; ex 1.42
+(define (compose f g)
+  (lambda (x) (f (g x))))
+
+;; ex 1.43
+(define dec (lambda (x) (- x 1)))
+
+(define (repeated f n)
+  (if (<= n 1)
+      f
+      (compose f (repeated f (dec n)))))
+
+;; ex 1.44
+(define (smoothed f)
+  (lambda (x)
+    (/ (+ (f x) (f (+ x dx)) (f (- x dx))) 3)))
+
+
+;; ex 1.45
+(define (cube x)
+  (fixed-point
+   (damp (lambda (y)  (/ x (* y y)))) 1))
+
+(define (forth-root x)
+  (fixed-point
+   ((repeated damp 2)
+    (lambda (y) (/ x (* y y y )))) 1.0))
+
+(define (fifth-root x)
+  (fixed-point
+   ((repeated damp 2)
+    (lambda (y) (/ x (* y y y y )))) 1.0))
+
+(define (nth-root x n)
+  (let ((d (floor (/ (log x) (log 2)))))
+    (fixed-point
+     ((repeated damp d)
+      (lambda (y) (/ x (expt y (dec n))))) 1.0)))
+
