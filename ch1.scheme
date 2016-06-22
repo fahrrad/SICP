@@ -525,3 +525,18 @@
      ((repeated damp d)
       (lambda (y) (/ x (expt y (dec n))))) 1.0)))
 
+;; ex 1.46
+(define (iter-impr good-enuf? improve)
+  (define (iter guess)
+    (if (good-enuf? guess)
+	guess
+	(iter (improve guess))))
+  iter)
+
+(define (sqrt x)
+  (iter-impr (lambda (y) (< (abs (- (* y y) x)) tolerance))
+	     (damp (lambda (y) (/ x y)))))
+
+(define (fixed-point f)
+  (iter-impr (lambda (y) (< (abs (- (f y) y)) tolerance))
+	     (lambda (y) (f y))))
