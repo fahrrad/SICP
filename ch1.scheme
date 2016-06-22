@@ -398,20 +398,83 @@
 ;; chciken specific: tracing
 (require-library trace)
 (import (prefix trace t:))
-(t:trace half-interval-method)
-
-(half-interval-method sin 2.0 4.0)
-(t:untrace)
 
 (define tolerance 0.0001)
 
 (define (fixed-point f initial-guess)
   (define (close-enough? x y)
     (> tolerance (abs (- x y))))
+  (define (helper guess)
+   (print guess)
+    (let ((next (f guess)))
+      (if (close-enough? next guess)
+	  next
+	  (helper next))))
+  (helper initial-guess))
 
-  (if (close-enough? (f initial-guess) initial-guess)
-      initial-guess
-      (fixed-point f (f initial-guess))))
+(define (average x y)
+  (/ (+ x y) 2.0))
 
 (define (sqrt x)
-  (fixed-point (lambda (y) (/ x y)) 0.001))
+  (fixed-point (lambda (y) (average y (/ x y))) 0.001))
+
+(define golden-ration
+  (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+
+;; ex 1.36
+(define (log-fn-average)
+  (fixed-point (lambda (x) (average x (/ (log 1000) (log x)))) 2.0))
+
+
+;; ex 1.37
+(define (cont-frac n d k from)
+  (if (> from k)
+      (/ (n from) (d from))
+      (/ (n from)
+	 (+ (d from)
+	    
+	    (cont-frac n d k (+ from 1))))))
+
+
+;; Procedures as return values
+(define (damp f)
+  (lambda (x)
+   (average x (f x))))
+
+(define (sqrt x)
+  (fixed-point
+   (damp
+    (lambda (y) (/ x y))) 1))
+
+
+
+;; Newtons method
+
+;; Step 1: derivatives
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+
+;; Newtons transformation
+(define (newton-transform f)
+  (lambda (x) (- x (/ (f x)
+		 ((deriv f) x)))))
+
+(define (newton-method f guess)
+  (fixed-point (newton-transform f)
+	       guess))
+
+
+(define sqrt
+  (lambda (x)
+    (newton-method
+     (lambda (y) (- (square y) x))
+     1.0)))
+
+;; ex 1.40
+
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a x x) (* b x) c)))
+
+
