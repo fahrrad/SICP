@@ -281,3 +281,6 @@
 	       (n . remainder . 2))
 	    (cons n (iter (cdr numbers) parity))
 	    (iter (cdr numbers) parity))))))
+
+
+;; ex
